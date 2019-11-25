@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "PerlinNoise.h"
-#include "Vec3.h"
 
 PerlinNoise::PerlinNoise(const int &hash_size) {
 	hashsize = hash_size;
@@ -23,7 +22,7 @@ PerlinNoise::PerlinNoise(const int &hash_size, const uint32 &seed) : PerlinNoise
 		float64 y = sin(phi) * sin(theta);
 		float64 z = cos(theta);
 
-		gradients[i] = Vec3<double>(x, y, z);
+		gradients[i] = glm::vec<3, double>(x, y, z);
 
 		permutation[i] = i;
 	}

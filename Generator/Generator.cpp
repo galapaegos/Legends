@@ -163,20 +163,21 @@ void Generator::create_moisture(PerlinNoise &n) {
 	}
 }
 
+void Generator::create_temperature(PerlinNoise &n) {}
+void Generator::create_atmosphere(PerlinNoise &n) {}
+
 void Generator::identify_biomes(PerlinNoise &n) {
 	for (int y = 0; y < terrain.grid_height; y++) {
 		for (int x = 0; x < terrain.grid_width; x++) {
 			int32 idx = y * terrain.grid_width + x;
 
-			terrain.moisture[idx];
-			terrain.value[idx];
+			terrain.biome[idx] = identify_biome(terrain.value[idx], 0, terrain.moisture[idx]);
 
-			terrain.biome[idx];
 		}
 	}
 }
 
-void Generator::create_ocean(PerlinNoise &n) {
+void Generator::create_oceans(PerlinNoise &n) {
 	// Find min/max of the terrain values
 	float64 terrain_min = FLT_MAX, terrain_max = FLT_MIN;
 

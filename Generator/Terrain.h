@@ -1,32 +1,12 @@
-#pragma once
+#ifndef _Terrain_h_
+#define _Terrain_h_
 
 #include "stdafx.h"
 
-#include "Vec3.h"
+#include "Biome.h"
+#include "Geode.h"
 
-// 
-enum TerrainBiome {
-	Terrestrial_Temperate,
-	Terrestrial_Coniferous,
-	Terrestrial_Woodland,
-	Terrestrial_Tundra,
-	Terrestrial_Grassland,
-	Terrestrial_Desert,
-	Terrestrial_TropicalSavanna,
-	Terrestrial_TropicalForest,
-	Marine_Plankton,
-	Marine_Balanoid,
-	Marine_Pelecypod,
-	Marine_Coral,
-};
-
-// Types of rocks found in each layer
-enum TerrainGeode {
-	Geode_Iron,
-	Geode_Copper,
-	Geode_Aluminum,
-	Geode_Bronze
-};
+#include <glm/vec4.hpp>
 
 // Configurable details user can specify for this region
 struct TerrainSettings {
@@ -63,19 +43,26 @@ struct Terrain {
 	int grid_width;
 	int grid_height;
 
-	std::vector<float64> value;
+	std::vector<float64> elevation;
 	std::vector<float64> moisture;
 
+	// Vector with strength as w.
+	std::vector<glm::vec<4, float>> wind;
+
 	// Desert, swamp, etc
-	std::vector<TerrainBiome> biome;
+	std::vector<Biome> biome;
 
 	// Numerical value tracking the amount of liquid above this tile
 	std::vector<int16> rainfall;
-
 	std::vector<int16> temperature;
+	std::vector<float64> atmosphere;
+
+	std::vector<int16> tectonic_plate_depth;
 
 	// Type of possible geodes found within the ground
 	std::vector<uint16> geode;
 };
 
 void create_terrain(Terrain &t, const int &width, const int &height);
+
+#endif

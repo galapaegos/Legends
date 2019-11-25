@@ -3,6 +3,7 @@
 #include "stdafx.h"
 
 #include "PerlinNoise.h"
+
 #include "Terrain.h"
 
 class Generator {
@@ -16,6 +17,8 @@ public:
 private:
 	void create_land(PerlinNoise &n);
 	void create_moisture(PerlinNoise &n);
+	void create_temperature(PerlinNoise &n);
+	void create_atmosphere(PerlinNoise &n);
 
 	void identify_biomes(PerlinNoise &n);
 

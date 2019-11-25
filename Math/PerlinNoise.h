@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 
-#include "Vec3.h"
+#include <glm/vec3.hpp>
 
 // Parts of this code were used from www.scratchapixel.com/
 class PerlinNoise {
@@ -25,7 +25,7 @@ private:
 	int32 hash(const int &x, const int &y, const int &z) const;
 
 	std::vector<int32> permutation;
-	std::vector<Vec3<double>> gradients;
+	std::vector<glm::vec<3, double>> gradients;
 
 	int hashsize;
 };
