@@ -3,20 +3,22 @@
 #include "stdafx.h"
 
 #include "PerlinNoise.h"
-#include "TerrainSpot.h"
+#include "Terrain.h"
 
 class Generator {
 public:
 	Generator();
 
-	void generate(const int32 &x, const int32 &y, const int32 &length, const uint32 &seed);
+	void generate(const TerrainSettings &ts, const int32 &x, const int32 &y, const int32 &length, const uint32 &seed);
 
-	std::vector<TerrainSpot> getTerrain() const { return terrain; }
-
-	void getGridSize(int *width, int *height) const { *width = grid_width; *height = grid_height; }
+	Terrain getTerrain() const { return terrain; }
 
 private:
 	void create_land(PerlinNoise &n);
+	void create_moisture(PerlinNoise &n);
+
+	void identify_biomes(PerlinNoise &n);
+
 	void create_ocean(PerlinNoise &n);
 	void create_rivers(PerlinNoise &n);
 	
@@ -27,6 +29,6 @@ private:
 
 	void apply_evaporation(int16 &rainfall);
 
-	int grid_width, grid_height;
-	std::vector<TerrainSpot> terrain;
+	Terrain terrain;
+	TerrainSettings terrain_settings;
 };

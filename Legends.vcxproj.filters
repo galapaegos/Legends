@@ -39,9 +39,6 @@
     <ClInclude Include="Utilities\TiffObject.h">
       <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Generator\TerrainSpot.h">
-      <Filter>Generator</Filter>
-    </ClInclude>
     <ClInclude Include="Utilities\StringFormat.h">
       <Filter>Utilities</Filter>
     </ClInclude>
@@ -50,6 +47,9 @@
     </ClInclude>
     <ClInclude Include="Math\Vec3.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator\Terrain.h">
+      <Filter>Generator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -68,9 +68,6 @@
     <ClCompile Include="Utilities\TiffObject.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="Generator\TerrainSpot.cpp">
-      <Filter>Generator</Filter>
-    </ClCompile>
     <ClCompile Include="Utilities\StringFormat.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
@@ -79,6 +76,9 @@
     </ClCompile>
     <ClCompile Include="Math\Vec3.cpp">
       <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Generator\Terrain.cpp">
+      <Filter>Generator</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

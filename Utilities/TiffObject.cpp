@@ -5,7 +5,7 @@
 
 #include "tiffio.h"
 
-void write_terrain_overlay_file(const std::string &terrain_file, const int &width, const int &height, const std::vector<TerrainSpot> &terrain) {
+void write_terrain_overlay_file(const std::string &terrain_file, const int &width, const int &height, const Terrain &terrain) {
 	TIFF *file = TIFFOpen(terrain_file.c_str(), "w");
 	if (!file) {
 		printf("Unable to open file %s\n", terrain_file.c_str());
@@ -34,7 +34,7 @@ void write_terrain_overlay_file(const std::string &terrain_file, const int &widt
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			int idx = y * width + x;
-			int16 type = terrain[y*width + x].terrain_type;
+			int16 type = terrain.value[y*width + x];
 
 			int bufferIdx = (y * width + x) * 4;
 			/*
@@ -93,7 +93,7 @@ void write_terrain_overlay_file(const std::string &terrain_file, const int &widt
 	delete[] ptr;
 }
 
-void write_terrain_file(const std::string &terrain_file, const int &width, const int &height, const std::vector<TerrainSpot> &terrain) {
+void write_terrain_file(const std::string &terrain_file, const int &width, const int &height, const Terrain &terrain) {
 	TIFF *file = TIFFOpen(terrain_file.c_str(), "w");
 	if (!file) {
 		printf("Unable to open file %s\n", terrain_file.c_str());
@@ -122,7 +122,7 @@ void write_terrain_file(const std::string &terrain_file, const int &width, const
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			int idx = y * width + x;
-			ptr[idx] = terrain[y*width + x].terrain_value;
+			ptr[idx] = int32(terrain.value[y*width + x]);
 		}
 	}
 
@@ -145,11 +145,8 @@ void write_tiff(Generator &g, const std::string &path) {
 	if (!directoryExists(path))
 		createDirectory(path);
 
-	int width, height;
-	g.getGridSize(&width, &height);
-
 	auto terrain = g.getTerrain();
 
-	write_terrain_file(path + "\\terrain.tiff", width, height, terrain);
-	write_terrain_overlay_file(path + "\\overlay.tiff", width, height, terrain);
+	write_terrain_file(path + "\\terrain.tiff", terrain.grid_width, terrain.grid_height, terrain);
+	write_terrain_overlay_file(path + "\\overlay.tiff", terrain.grid_width, terrain.grid_height, terrain);
 }
