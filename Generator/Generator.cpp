@@ -9,10 +9,10 @@ Generator::Generator() {
 void Generator::generate(const TerrainSettings &ts, const int32 &map_w, const int32 &map_h, const int32 &length, const uint32 &seed) {
 	PerlinNoise pn(256, seed);
 
-	terrain_settings = ts;
+	settings = ts;
 
 	// Initialize structures here:
-	create_terrain(terrain, map_w, map_h);
+	initialize_terrain(world, map_w, map_h);
 
 	// Skipping tectonic plates, etc:
 
@@ -20,7 +20,7 @@ void Generator::generate(const TerrainSettings &ts, const int32 &map_w, const in
 	create_land(pn);
 
 	// Create an ocean.
-	create_ocean(pn);
+	create_oceans(pn);
 
 	// Using a fractal generate a reasonable moisture
 	create_moisture(pn);
@@ -30,8 +30,8 @@ void Generator::generate(const TerrainSettings &ts, const int32 &map_w, const in
 }
 
 void Generator::create_land(PerlinNoise &n) {
-	float64 i_width = 1.0/terrain.grid_width;
-	float64 i_height = 1.0/terrain.grid_height;
+	float64 i_width = 1.0/world.world_width;
+	float64 i_height = 1.0/world.world_height;
 
 	// set elevation
 	// set temperature
@@ -39,43 +39,37 @@ void Generator::create_land(PerlinNoise &n) {
 	// formming lakes and minerals
 
 	float64 maxNoiseVal = 0.f;
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int32 idx = y * terrain.grid_width + x;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int32 idx = y * world.world_width + x;
 
-			float64 fx = ((x + terrain_settings.terrain_offset_x) * terrain_settings.terrain_frequency_x)*i_width;
-			float64 fy = ((y + terrain_settings.terrain_offset_y) * terrain_settings.terrain_frequency_y)*i_height;
+			float64 fx = ((x + settings.elevation.elevation_offset_x) * settings.elevation.elevation_frequency_x)*i_width;
+			float64 fy = ((y + settings.elevation.elevation_offset_y) * settings.elevation.elevation_frequency_y)*i_height;
 
 			float64 amplitude = 1.0;
-			for (int l = 0; l < terrain_settings.terrain_fractalsum_layers; l++) {
+			for (int l = 0; l < settings.elevation.elevation_fractalsum_layers; l++) {
 				float64 v = n.noise(fx, fy, 0.f);
-				terrain.value[idx] += v;
+				world.elevation[idx] += v;
 
-				fx *= terrain_settings.terrain_frequency_multiplier;
-				fy *= terrain_settings.terrain_frequency_multiplier;
+				fx *= settings.elevation.elevation_frequency_multiplier;
+				fy *= settings.elevation.elevation_frequency_multiplier;
 
-				amplitude *= terrain_settings.terrain_amplitude_multiplier;
+				amplitude *= settings.elevation.elevation_amplitude_multiplier;
 			}
 
-			if (terrain.value[idx] > maxNoiseVal) {
-				maxNoiseVal = terrain.value[idx];
+			if (world.elevation[idx] > maxNoiseVal) {
+				maxNoiseVal = world.elevation[idx];
 			}
 		}
 	}
 
-	// Range of values
-	int terrain_elevation_range = 200;
-
-	// Natural offset
-	int terrain_elevation_offset = 50;
-
 	// Normalize our terrain value
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int32 idx = y * terrain.grid_width + x;
-			terrain.value[idx] /= maxNoiseVal;
-			terrain.value[idx] *= terrain_elevation_range;
-			terrain.value[idx] += terrain_elevation_offset;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int32 idx = y * world.world_width + x;
+			world.elevation[idx] /= maxNoiseVal;
+			world.elevation[idx] *= settings.elevation.elevation_range;
+			world.elevation[idx] += settings.elevation.elevation_offset;
 		}
 	}
 
@@ -92,86 +86,111 @@ void Generator::create_land(PerlinNoise &n) {
 	for (int i = 0; i < rainfall_iteraions; i++) {
 		// First iteration is to place out a number of rainfall's randomly.  The amount of 
 		// rainfall should be dependent on the biome
-		for (int y = 0; y < terrain.grid_height; y++) {
-			for (int x = 0; x < terrain.grid_width; x++) {
-				int idx = y * terrain.grid_width + x;
+		for (int y = 0; y < world.world_height; y++) {
+			for (int x = 0; x < world.world_width; x++) {
+				int idx = y * world.world_width + x;
 
-				float64 fx = x * terrain.grid_width;
-				float64 fy = y * terrain.grid_height;
+				float64 fx = x * world.world_width;
+				float64 fy = y * world.world_height;
 
-				terrain.rainfall[idx] += int16(n.noise(fx, fy, 0.0)*rainfall_amount);
+				world.rainfall[idx] += int16(n.noise(fx, fy, 0.0)*rainfall_amount);
 			}
 		}
 
 		// Next we will find gradients at each location of rainfalls, and erode dirt.
 		// Determine how much soil to move and location to move them.
-		for (int y = 0; y < terrain.grid_height; y++) {
-			for (int x = 0; x < terrain.grid_width; x++) {
-				int idx = y * terrain.grid_width + x;
+		for (int y = 0; y < world.world_height; y++) {
+			for (int x = 0; x < world.world_width; x++) {
+				int idx = y * world.world_width + x;
 
 				// Get current value
-				uint16 rain = terrain.rainfall[idx];
+				uint16 rain = world.rainfall[idx];
 			}
 		}
 
 		// Finally evaporation an amount, depositing dirt in location
-		for (int y = 0; y < terrain.grid_height; y++) {
-			for (int x = 0; x < terrain.grid_width; x++) {
-				int idx = y * terrain.grid_width + x;
+		for (int y = 0; y < world.world_height; y++) {
+			for (int x = 0; x < world.world_width; x++) {
+				int idx = y * world.world_width + x;
 
-				apply_evaporation(terrain.rainfall[idx]);
+				//apply_evaporation(terrain.rainfall[idx]);
 			}
 		}
 	}
 }
 
 void Generator::create_moisture(PerlinNoise &n) {
-	float64 i_width = 1.0 / terrain.grid_width;
-	float64 i_height = 1.0 / terrain.grid_height;
+	float64 i_width = 1.0 / world.world_width;
+	float64 i_height = 1.0 / world.world_height;
 
 	float64 maxNoiseVal = 0.f;
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int32 idx = y * terrain.grid_width + x;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int32 idx = y * world.world_width + x;
 
-			float64 fx = ((x + terrain_settings.moisture_offset_x) * terrain_settings.moisture_frequency_x)*i_width;
-			float64 fy = ((y + terrain_settings.moisture_offset_y) * terrain_settings.moisture_frequency_y)*i_height;
+			float64 fx = ((x + settings.moisture.moisture_offset_x) * settings.moisture.moisture_frequency_x)*i_width;
+			float64 fy = ((y + settings.moisture.moisture_offset_y) * settings.moisture.moisture_frequency_y)*i_height;
 
 			float64 amplitude = 1.0;
-			for (int l = 0; l < terrain_settings.moisture_fractalsum_layers; l++) {
+			for (int l = 0; l < settings.moisture.moisture_fractalsum_layers; l++) {
 				float64 v = n.noise(fx, fy, 0.f);
-				terrain.moisture[idx] += v;
+				world.moisture[idx] += v;
 
-				fx *= terrain_settings.moisture_frequency_multiplier;
-				fy *= terrain_settings.moisture_frequency_multiplier;
+				fx *= settings.moisture.moisture_frequency_multiplier;
+				fy *= settings.moisture.moisture_frequency_multiplier;
 
-				amplitude *= terrain_settings.moisture_amplitude_multiplier;
+				amplitude *= settings.moisture.moisture_amplitude_multiplier;
 			}
 
-			if (terrain.moisture[idx] > maxNoiseVal) {
-				maxNoiseVal = terrain.moisture[idx];
+			if (world.moisture[idx] > maxNoiseVal) {
+				maxNoiseVal = world.moisture[idx];
 			}
 		}
 	}
 
 	// Normalize our moisture
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int32 idx = y * terrain.grid_width + x;
-			terrain.value[idx] /= maxNoiseVal;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int32 idx = y * world.world_width + x;
+			world.elevation[idx] /= maxNoiseVal;
 		}
 	}
 }
 
-void Generator::create_temperature(PerlinNoise &n) {}
-void Generator::create_atmosphere(PerlinNoise &n) {}
+void Generator::create_temperature(PerlinNoise &n) {
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int idx = y * world.world_width + x;
+
+			float64 fx = x * world.world_width;
+			float64 fy = y * world.world_height;
+
+			world.temperature[idx] += int16(n.noise(fx, fy, 0.0));
+		}
+	}
+}
+
+void Generator::create_atmosphere(PerlinNoise &n) {
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int idx = y * world.world_width + x;
+
+			float64 fx = x * world.world_width;
+			float64 fy = y * world.world_height;
+
+			world.atmosphere[idx] += int16(n.noise(fx, fy, 0.0));
+		}
+	}
+}
+
+void Generator::create_drainage(PerlinNoise &n) {}
 
 void Generator::identify_biomes(PerlinNoise &n) {
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int32 idx = y * terrain.grid_width + x;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int32 idx = y * world.world_width + x;
 
-			terrain.biome[idx] = identify_biome(terrain.value[idx], 0, terrain.moisture[idx]);
+			world.biome[idx] = identify_biome(world.elevation[idx], 0, world.moisture[idx]);
 
 		}
 	}
@@ -181,15 +200,15 @@ void Generator::create_oceans(PerlinNoise &n) {
 	// Find min/max of the terrain values
 	float64 terrain_min = FLT_MAX, terrain_max = FLT_MIN;
 
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int idx = y * terrain.grid_width + x;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int idx = y * world.world_width + x;
 
-			if (terrain_max < terrain.value[idx])
-				terrain_max = terrain.value[idx];
+			if (terrain_max < world.elevation[idx])
+				terrain_max = world.elevation[idx];
 
-			if (terrain_min > terrain.value[idx])
-				terrain_min = terrain.value[idx];
+			if (terrain_min > world.elevation[idx])
+				terrain_min = world.elevation[idx];
 		}
 	}
 
@@ -200,12 +219,12 @@ void Generator::create_oceans(PerlinNoise &n) {
 	histogram.resize(256);
 
 	// Create a histogram of the terrain values.
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int idx = y * terrain.grid_width + x;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int idx = y * world.world_width + x;
 
 			// Normalize terrain value
-			float64 t = (terrain.value[idx] - terrain_min) / offset;
+			float64 t = (world.elevation[idx] - terrain_min) / offset;
 
 			// Place into 256 bin
 			histogram[int(t*255)]++;
@@ -215,7 +234,7 @@ void Generator::create_oceans(PerlinNoise &n) {
 	// Our ocean location is based off this:  25% is the ocean level?
 	float64 ocean_level = histogram[64];
 
-	printf("Ocean level = %f\n [%f,%f]", (64/255.0)*offset + terrain_min, terrain_min, terrain_max);
+	printf("Ocean level = %f\n [%f,%f]\n", (64/255.0)*offset + terrain_min, terrain_min, terrain_max);
 
 	// Run a EDM, which is the ocean tiles.  Don't walk into the land
 }
@@ -236,8 +255,8 @@ void Generator::generate_populations(PerlinNoise &n) {
 }
 
 void Generator::progress_step(PerlinNoise &n) {
-	float64 width = 1.0 / terrain.grid_width;
-	float64 height = 1.0 / terrain.grid_height;
+	float64 width = 1.0 / world.world_width;
+	float64 height = 1.0 / world.world_height;
 
 	int rainfall_iteraions = 5;
 	int rainfall_amount = 10;
@@ -246,39 +265,39 @@ void Generator::progress_step(PerlinNoise &n) {
 
 	// First iteration is to place out a number of rainfall's randomly.  The amount of 
 	// rainfall should be dependent on the biome
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int idx = y * terrain.grid_width + x;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int idx = y * world.world_width + x;
 
 			float64 fx = x * width;
 			float64 fy = y * height;
 
-			terrain.rainfall[idx] += int16(n.noise(fx, fy, 0.0)*rainfall_amount);
+			world.rainfall[idx] += int16(n.noise(fx, fy, 0.0)*rainfall_amount);
 		}
 	}
 
 	// Next we will find gradients at each location of rainfalls, and erode dirt.
 	// Determine how much soil to move and location to move them.
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int idx = y * terrain.grid_width + x;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int idx = y * world.world_width + x;
 
 			// Get current value
-			uint16 rain = terrain.rainfall[idx];
+			uint16 rain = world.rainfall[idx];
 		}
 	}
 
 	// Finally evaporation an amount, depositing dirt in location
-	for (int y = 0; y < terrain.grid_height; y++) {
-		for (int x = 0; x < terrain.grid_width; x++) {
-			int idx = y * terrain.grid_width + x;
+	for (int y = 0; y < world.world_height; y++) {
+		for (int x = 0; x < world.world_width; x++) {
+			int idx = y * world.world_width + x;
 
-			apply_evaporation(terrain.rainfall[idx]);
+			//apply_evaporation(terrain.rainfall[idx]);
 		}
 	}
 }
 
-void Generator::apply_evaporation(int16 &rainfall) {
+void Generator::apply_evaporation(float64 &rainfall) {
 	//Applying a very dumb implementation of evaporation.
 	// Evaporation will need to take into account other parameters, such as current biome and temperature
 	rainfall *= 0.2;

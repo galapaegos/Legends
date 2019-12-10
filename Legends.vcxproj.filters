@@ -22,6 +22,9 @@
     <Filter Include="Math">
       <UniqueIdentifier>{211f3981-4112-4bcf-8576-05e78ee0f705}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GL">
+      <UniqueIdentifier>{3f5ec096-9526-4123-9ef3-90cfb003e04d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -45,11 +48,29 @@
     <ClInclude Include="Utilities\Utilities.h">
       <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Vec3.h">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Generator\Terrain.h">
       <Filter>Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\Texture.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\imgui_impl_glfw.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\imgui_impl_opengl3.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator\Biome.h">
+      <Filter>Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator\Geode.h">
+      <Filter>Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\Shader.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\Program.h">
+      <Filter>GL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -74,11 +95,29 @@
     <ClCompile Include="Utilities\Utilities.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Vec3.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Generator\Terrain.cpp">
       <Filter>Generator</Filter>
     </ClCompile>
+    <ClCompile Include="GL\imgui_impl_glfw.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="GL\imgui_impl_opengl3.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="GL\Texture.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="Generator\Biome.cpp">
+      <Filter>Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="GL\Shader.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="GL\Program.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
