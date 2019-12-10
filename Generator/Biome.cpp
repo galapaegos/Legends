@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Biome.h"
 
 Biome identify_biome(const double &elevation, const double &temperature, const double &moisture) {
