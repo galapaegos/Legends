@@ -10,12 +10,15 @@ class Generator {
 public:
 	Generator();
 
-	void generate(const TerrainSettings &ts, const int32 &x, const int32 &y, const int32 &length, const uint32 &seed);
+	void generate(const TerrainSettings &ts);
 
 	TerrainWorld world;
 
 private:
-	void create_land(PerlinNoise &n);
+	// Create a series of seeds based off a 'root seed'.
+	void establish_seeds();
+
+	void create_elevation(PerlinNoise &n);
 	void create_moisture(PerlinNoise &n);
 	void create_temperature(PerlinNoise &n);
 	void create_atmosphere(PerlinNoise &n);
@@ -25,13 +28,12 @@ private:
 
 	void create_oceans(PerlinNoise &n);
 	void create_rivers(PerlinNoise &n);
-	
-	void generate_civilizations(PerlinNoise &n);
-	void generate_populations(PerlinNoise &n);
 
-	void progress_step(PerlinNoise &n);
+	void smooth(std::vector<float32> &grid);
+	void edm(std::vector<float32> &elevation, std::vector<float32> &edm);
 
-	void apply_evaporation(float64 &rainfall);
+	void threshold(std::vector<float32> &input, const float32 &threshold);
+	void calculate_gradients(std::vector<float32> &input, std::vector<glm::vec3> gradients);
 
 	TerrainSettings settings;
 };

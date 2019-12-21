@@ -186,6 +186,8 @@ float64 PerlinNoise::gradientDotV(const int32 perm, const float64 &x, const floa
 	case 14: return -y + z;
 	case 15: return -y - z;
 	}
+
+	return -1.f;
 }
 
 int32 PerlinNoise::hash(const int &x, const int &y, const int &z) const {

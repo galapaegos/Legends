@@ -3,24 +3,30 @@
 
 #include <GL/glew.h>
 
+#include <glm/glm.hpp>
+
 class Texture {
 public:
 	Texture();
 
-	void create();
+	void create(GLenum target=GL_TEXTURE_2D, GLenum internal_format=GL_RGBA, GLenum format=GL_RGBA, GLenum type=GL_UNSIGNED_BYTE, 
+		const bool &normalized=true);
 	void destroy();
 
 	void bind();
 	void unbind();
 
-	template<class Pixel>
-	void upload(Pixel *ptr, const int &width, const int &height) {
-		bind();
+	void upload(unsigned char *ptr, const int &width, const int &height);
+	void upload(float *ptr, const int &width, const int &height);
+	void upload(glm::vec4 *ptr, const int &width, const int &height);
 
-		//glTexture2D(GL_TEXTURE_2D, );
+protected:
+	GLuint texture_id;
 
-		unbind();
-	}
+	GLenum texture_target;
+	GLenum texture_internal_format;
+	GLenum texture_format;
+	GLenum texture_type;
 };
 
 #endif

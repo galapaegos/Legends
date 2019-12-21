@@ -2,12 +2,17 @@
 #define _Geode_h_
 
 // Types of rocks found in each layer
-enum Geode {
+enum Geode_Type {
+	Geode_Unknown = -1,
 	Geode_Iron,
 	Geode_Copper,
 	Geode_Aluminum,
 	Geode_Bronze
 };
 
-#endif
+struct Geode {
+	Geode_Type type;
+	int32 seed;
+};
 
+#endif
