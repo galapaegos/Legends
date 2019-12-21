@@ -104,9 +104,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GLM_ENABLE_EXPERIMENTAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;./Generator;./Math;./Utilities;./tiff-4.0.4beta/libtiff</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,16 +158,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Display.h" />
     <ClInclude Include="Generator\Biome.h" />
     <ClInclude Include="Generator\Generator.h" />
     <ClInclude Include="Generator\Geode.h" />
     <ClInclude Include="Generator\Terrain.h" />
+    <ClInclude Include="Generator\Weather.h" />
+    <ClInclude Include="GL\Camera.h" />
+    <ClInclude Include="GL\Geometry.h" />
     <ClInclude Include="GL\imgui_impl_glfw.h" />
     <ClInclude Include="GL\imgui_impl_opengl3.h" />
+    <ClInclude Include="GL\Mesh.h" />
     <ClInclude Include="GL\Program.h" />
     <ClInclude Include="GL\Shader.h" />
     <ClInclude Include="GL\Texture.h" />
+    <ClInclude Include="Math\DiamondSquares.h" />
     <ClInclude Include="Math\PerlinNoise.h" />
+    <ClInclude Include="Math\UniformDistribution.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utilities\StringFormat.h" />
@@ -177,8 +185,13 @@
     <ClCompile Include="Generator\Biome.cpp" />
     <ClCompile Include="Generator\Generator.cpp" />
     <ClCompile Include="Generator\Terrain.cpp" />
+    <ClCompile Include="Generator\Weather.cpp" />
+    <ClCompile Include="GL\Camera.cpp" />
+    <ClCompile Include="GL\Display.cpp" />
+    <ClCompile Include="GL\Geometry.cpp" />
     <ClCompile Include="GL\imgui_impl_glfw.cpp" />
     <ClCompile Include="GL\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="GL\Mesh.cpp" />
     <ClCompile Include="GL\Program.cpp" />
     <ClCompile Include="GL\Shader.cpp" />
     <ClCompile Include="GL\Texture.cpp" />
@@ -196,6 +209,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="textured_quad.frag" />
+    <None Include="textured_quad.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

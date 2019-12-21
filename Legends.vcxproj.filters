@@ -72,6 +72,27 @@
     <ClInclude Include="GL\Program.h">
       <Filter>GL</Filter>
     </ClInclude>
+    <ClInclude Include="GL\Camera.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\Mesh.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="GL\Geometry.h">
+      <Filter>GL</Filter>
+    </ClInclude>
+    <ClInclude Include="Display.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\UniformDistribution.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\DiamondSquares.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator\Weather.h">
+      <Filter>Generator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -116,8 +137,29 @@
     <ClCompile Include="GL\Program.cpp">
       <Filter>GL</Filter>
     </ClCompile>
+    <ClCompile Include="GL\Camera.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="GL\Mesh.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="GL\Geometry.cpp">
+      <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="GL\Display.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Generator\Weather.cpp">
+      <Filter>Generator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="textured_quad.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="textured_quad.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
