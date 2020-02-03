@@ -177,7 +177,10 @@
     <ClInclude Include="Math\UniformDistribution.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utilities\EDM.h" />
+    <ClInclude Include="Utilities\Extrema.h" />
     <ClInclude Include="Utilities\StringFormat.h" />
+    <ClInclude Include="Utilities\Threshold.h" />
     <ClInclude Include="Utilities\TiffObject.h" />
     <ClInclude Include="Utilities\Utilities.h" />
   </ItemGroup>
@@ -203,7 +206,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utilities\EDM.cpp" />
+    <ClCompile Include="Utilities\Extrema.cpp" />
     <ClCompile Include="Utilities\StringFormat.cpp" />
+    <ClCompile Include="Utilities\Threshold.cpp" />
     <ClCompile Include="Utilities\TiffObject.cpp" />
     <ClCompile Include="Utilities\Utilities.cpp" />
   </ItemGroup>

@@ -111,3 +111,34 @@ void write_tiff_file(const std::string &terrain_file, const int &width, const in
 
 	TIFFClose(file);
 }
+
+void write_tiff_file(const std::string &terrain_file, const int &width, const int &height, const std::vector<glm::vec<4, float32>> &grid) {
+	TIFF *file = TIFFOpen(terrain_file.c_str(), "w");
+	if (!file) {
+		printf("Unable to open file %s\n", terrain_file.c_str());
+		return;
+	}
+
+	TIFFSetField(file, TIFFTAG_IMAGEWIDTH, width);
+	TIFFSetField(file, TIFFTAG_IMAGELENGTH, height);
+	TIFFSetField(file, TIFFTAG_BITSPERSAMPLE, 32);
+	TIFFSetField(file, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+
+	// Pack bits
+	TIFFSetField(file, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+	TIFFSetField(file, TIFFTAG_SAMPLESPERPIXEL, 4);
+	TIFFSetField(file, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+
+	TIFFSetField(file, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+	TIFFSetField(file, TIFFTAG_RESOLUTIONUNIT, 2);
+	TIFFSetField(file, TIFFTAG_ROWSPERSTRIP, 1);
+
+	//TIFFSetField(file, TIFFTAG_EXTRASAMPLES, 1, EXTRASAMPLE_ASSOCALPHA);
+
+	uint8 *data = (uint8*)&grid[0];
+	for (int y = 0; y < height; y++) {
+		TIFFWriteScanline(file, data + y * width * 4 * sizeof(float32), y, 0);
+	}
+
+	TIFFClose(file);
+}

@@ -93,6 +93,15 @@
     <ClInclude Include="Generator\Weather.h">
       <Filter>Generator</Filter>
     </ClInclude>
+    <ClInclude Include="Utilities\Threshold.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\EDM.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Extrema.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -151,6 +160,15 @@
     </ClCompile>
     <ClCompile Include="Generator\Weather.cpp">
       <Filter>Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\EDM.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Threshold.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Extrema.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
