@@ -141,10 +141,10 @@ void render_ui(GLFWwindow *window, Generator &gen, TerrainSettings &ts, DisplayS
 
 	ImGui::Begin("Temperature");
 	ImGui::SliderInt("Polar", &ts.temperature.polar_shift, -50, 50);
-	ImGui::SliderFloat("Temperature", &ts.temperature.temperature, 0, 50);
-	ImGui::SliderFloat("Range", &ts.temperature.range, 0.001, 10);
-	ImGui::SliderFloat("Scaling", &ts.temperature.scaling, 0.001, 10.0);
-	ImGui::SliderFloat("Factor", &ts.temperature.factor, 0.001, 10.0);
+	ImGui::SliderFloat("Temperature", &ts.temperature.temperature, 0.f, 50.f);
+	ImGui::SliderFloat("Range", &ts.temperature.range, 0.001f, 10.f);
+	ImGui::SliderFloat("Scaling", &ts.temperature.scaling, 0.001f, 10.f);
+	ImGui::SliderFloat("Factor", &ts.temperature.factor, 0.001f, 10.f);
 	ImGui::End();
 
 	ImGui::Begin("Save World");
