@@ -30,9 +30,7 @@ private:
 	void create_rivers(PerlinNoise &n);
 
 	void smooth(std::vector<float32> &grid);
-	void edm(std::vector<float32> &elevation, std::vector<float32> &edm);
 
-	void threshold(std::vector<float32> &input, const float32 &threshold);
 	void calculate_gradients(std::vector<float32> &input, std::vector<glm::vec3> gradients);
 
 	TerrainSettings settings;

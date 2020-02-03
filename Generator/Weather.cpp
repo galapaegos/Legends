@@ -23,7 +23,7 @@ void evaporation(TerrainWorld &world, const float &delta_time) {
 }
 
 void advance_weather(TerrainWorld &world, const float &time) {
-	float delta_time = 0.1;
+	float delta_time = 0.1f;
 	while (delta_time < time) {
 
 		// Move weather patterns

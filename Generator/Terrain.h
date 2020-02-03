@@ -44,8 +44,8 @@ struct MoistureSettings {
 	float32 offset_x = 0.0f;
 	float32 offset_y = 0.0f;
 
-	float32 frequency_x = 0.0f;
-	float32 frequency_y = 0.0f;
+	float32 frequency_x = 5.0f;
+	float32 frequency_y = 5.0f;
 
 	float32 frequency = 0.02f;
 	float32 frequency_multiplier = 1.8f;
@@ -56,7 +56,7 @@ struct MoistureSettings {
 
 struct TemperatureSettings {
 	int32 polar_shift = 0;
-	float32 temperature = 30.f;
+	float32 temperature = 25.f;
 	float32 range = 5.f;
 	float32 scaling = 0.25f;
 	float32 factor = 0.01f;

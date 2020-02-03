@@ -171,8 +171,8 @@ void save_world(TerrainWorld &t, const std::string &path) {
 	//std::vector<glm::vec<4, uint8>> heatmap;
 	//convert_to_heatmap(t.temperature, width, height, heatmap);
 
-	std::vector<glm::vec<4, uint8>> drainage;
-	convert_to_drainage(t.drainage, width, height, drainage);
+	//std::vector<glm::vec<4, uint8>> drainage;
+	//convert_to_drainage(t.drainage, width, height, drainage);
 
 	std::vector<glm::vec<4, uint8>> windmap;
 	convert_to_windmap(t.wind, width, height, windmap);
@@ -183,6 +183,7 @@ void save_world(TerrainWorld &t, const std::string &path) {
 	write_tiff_file(path + "\\biomes.tiff", width, height, t.biome);
 	write_tiff_file(path + "\\rainfall.tiff", width, height, t.rainfall);
 	write_tiff_file(path + "\\windmap.tiff", width, height, windmap);
+	write_tiff_file(path + "\\moisture.tiff", width, height, t.moisture);
 	write_tiff_file(path + "\\atmosphere.tiff", width, height, t.atmosphere);
 }
 

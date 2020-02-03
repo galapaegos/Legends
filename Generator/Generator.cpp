@@ -4,6 +4,9 @@
 
 #include <glm/glm.hpp>
 
+#include "Utilities/EDM.h"
+#include "Utilities/Extrema.h"
+
 Generator::Generator() {
 
 }
@@ -22,8 +25,11 @@ void Generator::generate(const TerrainSettings &ts) {
 	// Create an ocean.
 	create_oceans(pn);
 
-	// Creating the atmospheric winds
+	// Create initial moisture 
 	create_moisture(pn);
+
+	// Create atmospheric winds
+	create_atmosphere(pn);
 
 	// Temperature map
 	create_temperature(pn);
@@ -38,11 +44,11 @@ void Generator::generate(const TerrainSettings &ts) {
 void Generator::establish_seeds() { }
 
 void Generator::create_elevation(PerlinNoise &n) {
-	float64 i_width = 1.0/world.width;
-	float64 i_height = 1.0/world.height;
+	float32 i_width = 1.f/world.width;
+	float32 i_height = 1.f/world.height;
 
-	float64 maxNoiseVal = FLT_MIN;
-	float64 weighting_pass = settings.pass_weight;
+	float32 maxNoiseVal = FLT_MIN;
+	float32 weighting_pass = settings.pass_weight;
 	for (int i = 0; i < settings.passes; i++) {
 		std::vector<float32> elevation;
 		elevation.resize(world.width*world.height, 0.f);
@@ -51,12 +57,12 @@ void Generator::create_elevation(PerlinNoise &n) {
 			for (int x = 0; x < world.width; x++) {
 				int32 idx = y * world.width + x;
 
-				float64 fx = ((x + settings.elevation.offset_x) * settings.elevation.frequency_x)*i_width;
-				float64 fy = ((y + settings.elevation.offset_y) * settings.elevation.frequency_y)*i_height;
+				float32 fx = ((x + settings.elevation.offset_x) * settings.elevation.frequency_x)*i_width;
+				float32 fy = ((y + settings.elevation.offset_y) * settings.elevation.frequency_y)*i_height;
 
-				float64 amplitude = 1.0;
+				float32 amplitude = 1.0;
 				for (int l = 0; l < settings.elevation.fractalsum_layers; l++) {
-					float64 v = n.noise(fx, fy, 0.f);
+					float32 v = float32(n.noise(fx, fy, 0.f));
 					elevation[idx] += v * amplitude;
 
 					fx *= settings.elevation.frequency_multiplier;
@@ -74,20 +80,13 @@ void Generator::create_elevation(PerlinNoise &n) {
 		smooth(elevation);
 
 		// 
-		float64 terrain_min = FLT_MAX, terrain_max = FLT_MIN;
-		for (int y = 0; y < world.height; y++) {
-			for (int x = 0; x < world.width; x++) {
-				int idx = y * world.width + x;
+		float32 terrain_min = FLT_MAX, terrain_max = FLT_MIN;
+		extrema(elevation, &terrain_min, &terrain_max);
 
-				if (terrain_max < elevation[idx])
-					terrain_max = elevation[idx];
-
-				if (terrain_min > elevation[idx])
-					terrain_min = elevation[idx];
-
-				world.elevation[idx] += elevation[idx] * settings.pass_weight;
-			}
+		for (int i = 0; i < elevation.size(); i++) {
+			world.elevation[i] += elevation[i];
 		}
+		
 		printf(" Terrain [%f, %f]\n", terrain_min, terrain_max);
 
 		weighting_pass *= settings.pass_weight;
@@ -105,20 +104,20 @@ void Generator::create_elevation(PerlinNoise &n) {
 }
 
 void Generator::create_moisture(PerlinNoise &n) {
-	float64 i_width = 1.0 / world.width;
-	float64 i_height = 1.0 / world.height;
+	float32 i_width = 1.f / float32(world.width);
+	float32 i_height = 1.f / float32(world.height);
 
-	float64 maxNoiseVal = 0.f;
+	float32 maxNoiseVal = 0.f;
 	for (int y = 0; y < world.height; y++) {
 		for (int x = 0; x < world.width; x++) {
 			int32 idx = y * world.width + x;
 
-			float64 fx = ((x + settings.moisture.offset_x) * settings.moisture.frequency_x)*i_width;
-			float64 fy = ((y + settings.moisture.offset_y) * settings.moisture.frequency_y)*i_height;
+			float32 fx = ((x + settings.moisture.offset_x) * settings.moisture.frequency_x)*i_width;
+			float32 fy = ((y + settings.moisture.offset_y) * settings.moisture.frequency_y)*i_height;
 
-			float64 amplitude = 1.0;
+			float32 amplitude = 1.0;
 			for (int l = 0; l < settings.moisture.fractalsum_layers; l++) {
-				float64 v = n.noise(fx, fy, 0.f);
+				float32 v = float32(n.noise(fx, fy, 0.f));
 				world.moisture[idx] += v * amplitude;
 
 				fx *= settings.moisture.frequency_multiplier;
@@ -133,11 +132,17 @@ void Generator::create_moisture(PerlinNoise &n) {
 		}
 	}
 
+	float moisture_min, moisture_max;
+	extrema(world.moisture, &moisture_min, &moisture_max);
+
+	printf(" Moisture: %f %f [%f]\n", moisture_min, moisture_max, maxNoiseVal);
+
 	// Normalize our moisture
 	for (int y = 0; y < world.height; y++) {
 		for (int x = 0; x < world.width; x++) {
 			int32 idx = y * world.width + x;
 			world.moisture[idx] /= maxNoiseVal;
+			world.moisture[idx] *= 150.f;
 		}
 	}
 }
@@ -149,30 +154,22 @@ void Generator::create_temperature(PerlinNoise &n) {
 		for (int x = 0; x < world.width; x++) {
 			int idx = y * world.width + x;
 
-			float64 fx = x * world.width;
-			float64 fy = y * world.height;
+			float32 fx = float32(x) * world.width;
+			float32 fy = float32(y) * world.height;
 
-			float current_temp = settings.temperature.temperature + n.noise(fx, fy, 0.f) * settings.temperature.range;
-			world.temperature[idx] = current_temp - (settings.temperature.polar_shift + half_height - y)*settings.temperature.scaling;
+			float32 current_temp = settings.temperature.temperature + 
+				float32(n.noise(fx, fy, 0.f)) * settings.temperature.range;
+			world.temperature[idx] = current_temp - 
+				(settings.temperature.polar_shift + half_height*0.5 - y)*settings.temperature.scaling;
 		}
 	}
 
 	// Find min/max of the temperatures
-	int32 temp_min = 500;
-	int32 temp_max = -500;
-	for (int y = 0; y < world.height; y++) {
-		for (int x = 0; x < world.width; x++) {
-			int idx = y * world.width + x;
+	float32 temp_min = 500;
+	float32 temp_max = -500;
+	extrema(world.temperature, &temp_min, &temp_max);
 
-			auto temp = world.temperature[idx];
-			if (temp < temp_min)
-				temp_min = temp;
-			if (temp > temp_max)
-				temp_max = temp;
-		}
-	}
-
-	printf(" Initial temperature range: [%i %i]\n", temp_min, temp_max);
+	printf(" Initial temperature range: [%f %f]\n", temp_min, temp_max);
 
 	// Adjust temperature based on elevation:
 	for (int y = 0; y < world.height; y++) {
@@ -181,46 +178,35 @@ void Generator::create_temperature(PerlinNoise &n) {
 
 			// 
 			const float temp_scaling = (world.elevation[idx] - world.sea_level) * settings.temperature.factor;
-
 			world.temperature[idx] += world.temperature[idx]*temp_scaling;
 		}
 	}
 
 	temp_min = 500;
 	temp_max = -500;
-	for (int y = 0; y < world.height; y++) {
-		for (int x = 0; x < world.width; x++) {
-			int idx = y * world.width + x;
+	extrema(world.temperature, &temp_min, &temp_max);
 
-			auto temp = world.temperature[idx];
-			if (temp < temp_min)
-				temp_min = temp;
-			if (temp > temp_max)
-				temp_max = temp;
-		}
-	}
-
-	printf(" Scaling temperature range: [%i %i]\n", temp_min, temp_max);
+	printf(" Scaling temperature range: [%f %f]\n", temp_min, temp_max);
 }
 
 void Generator::create_atmosphere(PerlinNoise &n) {
 	const int32 prevailing_winds = 5;
 	const int32 offset = world.height/prevailing_winds;
-	const float32 power = 0.01;
+	const float32 power = 0.01f;
 	for (int y = 0; y < world.height; y++) {
 		for (int x = 0; x < world.width; x++) {
 			int idx = y * world.width + x;
 
-			float32 strength = n.noise(x, y, 0);
+			float32 strength = float32(n.noise(x, y, 0));
 			if (offset % 3 == 0) {
-				world.wind[idx] = glm::vec4(-1*strength, 1.f - strength, 0, 0);
+				world.wind[idx] = glm::normalize(glm::vec4(-1*strength, 1.f - strength, 0, 0));
 			}
 			else if (offset % 3 == 1) {
 
-				world.wind[idx] = glm::vec4(strength*power, (1.f - strength)*power, 0, 0);
+				world.wind[idx] = glm::normalize(glm::vec4(strength*power, (1.f - strength)*power, 0, 0));
 			}
 			else if (offset % 3 == 2) {
-				world.wind[idx] = glm::vec4(1*strength, 1.f - strength, 0, 0);
+				world.wind[idx] = glm::normalize(glm::vec4(1*strength, 1.f - strength, 0, 0));
 			}
 
 			// 
@@ -239,77 +225,79 @@ void Generator::create_drainage(PerlinNoise &n) {
 			float64 fx = x * world.width;
 			float64 fy = y * world.height;
 
+			float32 v = float32(n.noise(fx, fy, 0.0));
+
 			switch (world.biome[idx]) {
 			case Biome::Aquatic_Coral:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.aquatic_coral * drainage_power + settings.drainage.aquatic_coral_offset;
+				world.drainage[idx] = v * settings.drainage.aquatic_coral * drainage_power + settings.drainage.aquatic_coral_offset;
 				break;
 
 			case Biome::Aquatic_Estuaries:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.aquatic_estuaries * drainage_power + settings.drainage.aquatic_estuaries_offset;
+				world.drainage[idx] = v * settings.drainage.aquatic_estuaries * drainage_power + settings.drainage.aquatic_estuaries_offset;
 				break;
 
 			case Biome::Aquatic_Lakes:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.aquatic_lakes * drainage_power + settings.drainage.aquatic_lakes_offset;
+				world.drainage[idx] = v * settings.drainage.aquatic_lakes * drainage_power + settings.drainage.aquatic_lakes_offset;
 				break;
 
 			case Biome::Aquatic_Ocean:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.aquatic_ocean * drainage_power + settings.drainage.aquatic_ocean_offset;
+				world.drainage[idx] = v * settings.drainage.aquatic_ocean * drainage_power + settings.drainage.aquatic_ocean_offset;
 				break;
 
 			case Biome::Aquatic_Ponds:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.aquatic_ponds * drainage_power + settings.drainage.aquatic_ponds_offset;
+				world.drainage[idx] = v * settings.drainage.aquatic_ponds * drainage_power + settings.drainage.aquatic_ponds_offset;
 				break;
 
 			case Biome::Aquatic_Wetlands:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.aquatic_wetlands * drainage_power + settings.drainage.aquatic_wetlands_offset;
+				world.drainage[idx] = v * settings.drainage.aquatic_wetlands * drainage_power + settings.drainage.aquatic_wetlands_offset;
 				break;
 
 			case Biome::Deserts_Coastal:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.deserts_coastal * drainage_power + settings.drainage.deserts_coastal_offset;
+				world.drainage[idx] = v * settings.drainage.deserts_coastal * drainage_power + settings.drainage.deserts_coastal_offset;
 				break;
 
 			case Biome::Deserts_Cold:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.deserts_cold * drainage_power + settings.drainage.deserts_cold_offset;
+				world.drainage[idx] = v * settings.drainage.deserts_cold * drainage_power + settings.drainage.deserts_cold_offset;
 				break;
 
 			case Biome::Deserts_Hot_and_Dry:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.deserts_hot_and_dry * drainage_power + settings.drainage.deserts_hot_and_dry_offset;
+				world.drainage[idx] = v * settings.drainage.deserts_hot_and_dry * drainage_power + settings.drainage.deserts_hot_and_dry_offset;
 				break;
 
 			case Biome::Deserts_Semiarid:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.deserts_semiarid * drainage_power + settings.drainage.deserts_semiarid_offset;
+				world.drainage[idx] = v * settings.drainage.deserts_semiarid * drainage_power + settings.drainage.deserts_semiarid_offset;
 				break;
 
 			case Biome::Forests_Boreal:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.forests_boreal * drainage_power + settings.drainage.forests_boreal_offset;
+				world.drainage[idx] = v * settings.drainage.forests_boreal * drainage_power + settings.drainage.forests_boreal_offset;
 				break;
 
 			case Biome::Forests_Temperate:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.forests_temperate * drainage_power + settings.drainage.forests_temperate_offset;
+				world.drainage[idx] = v * settings.drainage.forests_temperate * drainage_power + settings.drainage.forests_temperate_offset;
 				break;
 
 			case Biome::Forests_Tropical:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.forests_tropical * drainage_power + settings.drainage.forests_tropical_offset;
+				world.drainage[idx] = v * settings.drainage.forests_tropical * drainage_power + settings.drainage.forests_tropical_offset;
 				break;
 
 			case Biome::Grasslands_Savanna:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.grasslands_savanna * drainage_power + settings.drainage.grasslands_savanna_offset;
+				world.drainage[idx] = v * settings.drainage.grasslands_savanna * drainage_power + settings.drainage.grasslands_savanna_offset;
 				break;
 
 			case Biome::Grasslands_Steppes:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.grasslands_steppes * drainage_power + settings.drainage.grasslands_steppes_offset;
+				world.drainage[idx] = v * settings.drainage.grasslands_steppes * drainage_power + settings.drainage.grasslands_steppes_offset;
 				break;
 
 			case Biome::Grasslands_Temperate:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.grasslands_temperate * drainage_power + settings.drainage.grasslands_temperate_offset;
+				world.drainage[idx] = v * settings.drainage.grasslands_temperate * drainage_power + settings.drainage.grasslands_temperate_offset;
 				break;
 
 			case Biome::Tundra_Alpine:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.tundra_alpine * drainage_power + settings.drainage.tundra_alpine_offset;
+				world.drainage[idx] = v * settings.drainage.tundra_alpine * drainage_power + settings.drainage.tundra_alpine_offset;
 				break;
 
 			case Biome::Tundra_Artic:
-				world.drainage[idx] = n.noise(fx, fy, 0.0) * settings.drainage.tundra_artic * drainage_power + settings.drainage.tundra_artic_offset;
+				world.drainage[idx] = v * settings.drainage.tundra_artic * drainage_power + settings.drainage.tundra_artic_offset;
 				break;
 			}
 		}
@@ -328,22 +316,14 @@ void Generator::identify_biomes(PerlinNoise &n) {
 
 void Generator::create_oceans(PerlinNoise &n) {
 	// Find min/max of the terrain values
-	float64 terrain_min = FLT_MAX, terrain_max = FLT_MIN;
-
-	for (int y = 0; y < world.height; y++) {
-		for (int x = 0; x < world.width; x++) {
-			int idx = y * world.width + x;
-
-			if (terrain_max < world.elevation[idx])
-				terrain_max = world.elevation[idx];
-
-			if (terrain_min > world.elevation[idx])
-				terrain_min = world.elevation[idx];
-		}
-	}
+	float32 terrain_min = FLT_MAX, terrain_max = FLT_MIN;
+	extrema(world.elevation, &terrain_min, &terrain_max);
 
 	std::vector<int> histogram;
-	float64 offset = terrain_max - terrain_min;
+	float32 offset = terrain_max - terrain_min;
+
+	if (offset == 0.f)
+		offset = 1.f;
 
 	printf("elevation: %f %f [%f]\n", terrain_min, terrain_max, offset);
 
@@ -356,7 +336,7 @@ void Generator::create_oceans(PerlinNoise &n) {
 			int idx = y * world.width + x;
 
 			// Normalize terrain value
-			float64 t = (world.elevation[idx] - terrain_min) / offset;
+			float32 t = (world.elevation[idx] - terrain_min) / offset;
 
 			// Place into 256 bin
 			histogram[int(t*255)]++;
@@ -364,9 +344,9 @@ void Generator::create_oceans(PerlinNoise &n) {
 	}
 	
 	// Our ocean location is based off this:  25% is the ocean level?
-	world.sea_level = histogram[settings.elevation.terrain_ocean_bin];
+	world.sea_level = (settings.elevation.terrain_ocean_bin / 255.f)*offset + terrain_min;
 
-	printf("Ocean level = %f\n [%f,%f]\n", (settings.elevation.terrain_ocean_bin /255.0)*offset + terrain_min, 
+	printf("Ocean level = %f\n [%f,%f]\n", (settings.elevation.terrain_ocean_bin /255.f)*offset + terrain_min, 
 		terrain_min, terrain_max);
 
 	// Run a EDM, which is the ocean tiles.  Don't walk into the land
@@ -375,7 +355,7 @@ void Generator::create_oceans(PerlinNoise &n) {
 void Generator::create_rivers(PerlinNoise &n) {
 	// Running EDM on elevation
 	std::vector<float32> grid;
-	edm(world.elevation, grid);
+	edm(world.elevation, world.width, world.height, grid, world.sea_level);
 
 	// Figure out the gradients of the terrain.
 	calculate_gradients(world.elevation, world.elevation_gradients);
@@ -424,110 +404,6 @@ void Generator::smooth(std::vector<float32> &grid) {
 	}
 
 	grid = avg;
-}
-
-void Generator::edm(std::vector<float32> &elevation, std::vector<float32> &edm) {
-	const int width = world.width;
-	const int height = world.height;
-	const float32 sea_level = world.sea_level;
-
-	// Copy over contents.
-	edm = elevation;
-	threshold(edm, sea_level);
-
-	// Forward/backwards for X axis
-	for (int j = 0; j < height; j++) {
-		int32 df = width;
-		int32 db = width;
-		//forwards
-		for (int i = 0; i < width; i++) {
-			int idx = j * width + i;
-
-			
-			if (edm[idx] != 0)
-				df = df + 1;
-			else 
-				df = 0;
-
-			edm[idx] = df*df;
-		}
-
-		// backwards
-		for (int i = width - 1; i >= 0; i--) {
-			int idx = j * width + i;
-
-			if (edm[idx] != 0)
-				db = db + 1;
-			else
-				db = 0;
-
-			if (edm[idx] > db * db)
-				edm[idx] = db * db;
-		}
-	}
-
-	// Forwards/Backwards for Y axis
-	for (int32 i = 0; i < width; i++) {
-		float32 *buffer = new float32[height];
-
-		for (int j = 0; j < height; j++) {
-			int idx = j * width + i;
-			buffer[j] = edm[idx];
-		}
-
-		for (int j = 0; j < height; j++) {
-			int idx = j * width + i;
-			
-			float32 d = buffer[j];
-			if (d != 0) {
-				int32 rMax = int32(sqrt(d));
-
-				int32 rStart = 0;
-				int32 rEnd = 0;
-
-				if (rMax < j)
-					rStart = rMax;
-				else
-					rStart = j;
-				
-				if (rMax < (height - 1 - j))
-					rEnd = rMax;
-				else
-					rEnd = height - 1 - j;
-
-				for (int n = -rStart; n <= rEnd; n++) {
-					int32 w = buffer[j + n] + n * n;
-
-					if (w < d)
-						d = w;
-				}
-			}
-
-			edm[idx] = d;
-		}
-	}
-
-	for (int j = 0; j < height; j++) {
-		for (int i = 0; i < width; i++) {
-			int idx = j * width + i;
-
-			edm[idx] = sqrt(edm[idx]);
-		}
-	}
-}
-
-void Generator::threshold(std::vector<float32> &input, const float &threshold) {
-	const int width = world.width;
-	const int height = world.height;
-
-	for (int j = 0; j < height; j++) {
-		for (int i = 0; i < width; i++) {
-			int idx = j * width + i;
-
-			if (input[idx] < threshold)
-				input[idx] = 0.;
-		}
-	}
 }
 
 void Generator::calculate_gradients(std::vector<float32> &input, std::vector<glm::vec3> gradients) {
