@@ -12,7 +12,7 @@ Biome identify_biome(const float32 &ocean_level, const float32 &elevation, const
 	}
 	else {
 		// Cold regions
-		if (temperature < 15.f) {
+		if (temperature < 0.f) {
 			if (elevation > 0.6f) {
 				// Mountainous tundra region
 				return Biome::Tundra_Alpine;
@@ -21,28 +21,21 @@ Biome identify_biome(const float32 &ocean_level, const float32 &elevation, const
 				return Biome::Tundra_Artic;
 			}
 		} else {
-			// Moist regions
-			if (moisture > 50.f) {
-				if (temperature > 20) {
-					return Biome::Forests_Tropical;
-				}
-				else if(temperature > 12) {
-					return Biome::Forests_Temperate;
-				}
-				else
-				{
-					return Biome::Forests_Boreal;
-				}
-			} else {
-				// Dry regions
-				if (elevation - ocean_level < 0.1) {
-					return Biome::Deserts_Coastal;
-				}
-				else if (temperature > 20) {
-					return Biome::Deserts_Hot_and_Dry;
-				}
-			}
+			if (temperature > 20.f && moisture < 5.f)
+				return Biome::Deserts_Semiarid;
+			else if (temperature > 20.f && moisture < 15.f)
+				return Biome::Deserts_Hot_and_Dry;
+			else if (temperature > 20.f && moisture < 20.f)
+				return Biome::Deserts_Hot_and_Dry;
+			else if (temperature > 20.f && moisture > 20.f)
+				return Biome::Forests_Tropical;
+			else if (temperature < 20.f && moisture > 75.f)
+				return Biome::Forests_Temperate;
+			else if (temperature < 10.f && moisture < 100.f)
+				return Biome::Forests_Boreal;
 		}
+
+		return Biome::Grasslands_Temperate;
 	}
 
 	return Biome::Biome_Unknown;

@@ -13,7 +13,7 @@ enum Biome {
 	// Soil - 
 	// Flora - 
 	// Fauna - 
-	Aquatic_Coral,
+	Aquatic_Coral,			// 1
 
 	// Locations - where freshwater streams or rivers merge with the ocean
 	// Temperatures -
@@ -21,7 +21,7 @@ enum Biome {
 	// Soil - 
 	// Flora - 
 	// Fauna - 
-	Aquatic_Estuaries,		// where fresh water meets ocean
+	Aquatic_Estuaries,		// 2
 
 
 	// Temperatures - 3C
@@ -29,28 +29,28 @@ enum Biome {
 	// Soil - 
 	// Flora - 
 	// Fauna - 
-	Aquatic_Ocean,			// This is the catch case
+	Aquatic_Ocean,			// 3
 
 	// Temperatures -
 	// Precipitation -
 	// Soil - 
 	// Flora - 
 	// Fauna - 
-	Aquatic_Lakes,			// 
+	Aquatic_Lakes,			// 4
 
 	// Temperatures -
 	// Precipitation -
 	// Soil - 
 	// Flora - 
 	// Fauna - 
-	Aquatic_Ponds,			// range from 4 C to 22C for summer, 4C to 0C in winter
+	Aquatic_Ponds,			// 5
 
 	// Temperatures -
 	// Precipitation -
 	// Soil - 
 	// Flora - 
 	// Fauna - 
-	Aquatic_Wetlands,		// 
+	Aquatic_Wetlands,		// 6
 
 	// Temeprature - 20-25C annual, 43.5-49C high and as low as -18C at night
 	// Precipitation - very low or concentrated in short bursts, 1.5cm to 28cm a year
@@ -61,7 +61,7 @@ enum Biome {
 	// ephedras, agaves, brittlebush
 	// Fauna - small nocturnal carnivores; burrowers, kangaroo rats. insects, arachnids, reptiles,
 	// birds
-	Deserts_Hot_and_Dry,
+	Deserts_Hot_and_Dry,	// 7
 
 	// Temperatures - 21-27 in summer, max is 38C, nights get dwn to 10C
 	// Precipitation - 2-4cm annually
@@ -72,7 +72,7 @@ enum Biome {
 	// lyciums, jujube
 	// Fauna - Insects, jack rabbits, kangaroo rats, rabbits, skunks, grasshoppers, ants, lizards,
 	// snakes, burrowing owls, thrasher
-	Deserts_Semiarid,
+	Deserts_Semiarid,		// 8
 
 	// Temperatures - 13-24C summer, winter is -4 to 5C and below.
 	// Precipitation - 8-13cm annually
@@ -81,7 +81,7 @@ enum Biome {
 	// black bush, rice grass, little leaf horsebrush, black sage, chrysothamnus
 	// Fauna - toads, fairy shrimps, insects, mammals (coyote & badger), great horned owl, golden
 	// eagle, bald eagle, lizards and snakes
-	Deserts_Coastal,
+	Deserts_Coastal,		// 9
 
 	// Temperatures - 21-26C summer, -2-4C winter
 	// Precipitation - 15-26cm annual precipitation
@@ -90,7 +90,7 @@ enum Biome {
 	// Flora - ~10% ground covered, but where sagebush it is ~85%. plants are 15cm to 122cm. most
 	// plants are deciduous, most having spiny leaves
 	// Fauna - jack rabbits, badgers, kit fox, coyote, lizards, deer
-	Deserts_Cold,
+	Deserts_Cold,			// 10
 
 	// Temperature - 20-25C, ~temperatures differ no more than 5C
 	// Precipitation - evenly distributed throughout year, over 20 cm
@@ -100,7 +100,7 @@ enum Biome {
 	// mostly evergreen w/ large dark green leaves. 
 	// orchids, bromeliads, vines, ferns, mosses, palms
 	// Fauna - birds, bats, small mammals, insects
-	Forests_Tropical,
+	Forests_Tropical,		// 11
 
 	// Temperature - varies from -30C to 30C
 	// Precipitation - 75-150cm distributed evenly throughout year
@@ -110,7 +110,7 @@ enum Biome {
 	// maple, basswood, cottonwood, elm, willow, spring-flowering herbs
 	// Fauna - squirrels, rabbits, skunks, birds, deer, mountain lion, bobcat, timber wolf, fox,
 	// blackbear
-	Forests_Temperate,
+	Forests_Temperate,		// 12
 
 	// Temperature - very low
 	// Precipitation - primarily snow, 40-100cm annually
@@ -120,7 +120,7 @@ enum Biome {
 	// fir, spruce
 	// Fauna - woodpeckers, hawks, moose, bear, weasel, lynx, fox, wolf, deer, hares, chipmunks,
 	// shrews, bats
-	Forests_Boreal,
+	Forests_Boreal,			// 13
 
 	// grassland scattered with individual trees; 
 	// warm or hot climates, 
@@ -130,7 +130,7 @@ enum Biome {
 	// has both dry and rainy season, seasonal fires
 	// giraffes, zebras, buffaloes, kangaroos, mice, moles, gophers, groudn squirrels, snakes, worms,
 	// termites, beetles, lions, lepoards, hyenas, elephants
-	Grasslands_Savanna,
+	Grasslands_Savanna,		// 14
 	
 	// grasses dominat vegetation, trees and shrubs are absent
 	// annual rainfall is 50.8 to 88.9cm
@@ -138,17 +138,17 @@ enum Biome {
 	// gazelles, zebras, rhinoceroses, wild horses, lions, wolves, prairie dogs,  jack rabbits,
 	// deer, mic, coyotes, foxes, skunks, badgers, blackbirds, grouses, meadowlarks, quails, sparrows,
 	// hawks, owls, snakes, grasshoppers, leafhoppers, spiders
-	Grasslands_Temperate,
+	Grasslands_Temperate,	// 15
 	
 	// dry areas of grasslands with hot summers and cold winters
 	// annual rainfall 25.4 to 50.8cm per year
 	// tall plants, blue grama, buffalo grass, cacti, sagesbrush, speargrass, sunflowers
 	// badgers, hawks, owls, snakes
 	// Loose soil can cause dust storms
-	Grasslands_Steppes,
+	Grasslands_Steppes,		// 16
 
-	Tundra_Artic,			//
-	Tundra_Alpine,			//
+	Tundra_Artic,			// 17
+	Tundra_Alpine,			// 18
 };
 
 

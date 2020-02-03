@@ -91,7 +91,7 @@ void Program::bind() {
 void Program::unbind() {
 	size_t texture_id = textures.size() - 1;
 	for (int i = int(texture_id); i >= 0; i--) {
-		glActiveTexture(GL_TEXTURE0 + texture_id);
+		glActiveTexture(GL_TEXTURE0 + GLenum(texture_id));
 		textures[i].value.unbind();
 	}
 
